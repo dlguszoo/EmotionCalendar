@@ -7,10 +7,10 @@
 
 import HealthKitUI
 
-func healthDataAccessRequest(
-    store: HKHealthStore,
-    shareTypes: Set<HKSampleType>,
-    readTypes: Set<HKObjectType>? = nil,
-    trigger: some Equatable,
-    completion: @escaping (Result<Bool, any Error>) -> Void
-) -> some View
+//func healthDataAccessRequest(
+//    store: HKHealthStore,
+//    shareTypes: Set<HKSampleType>,
+//    readTypes: Set<HKObjectType>? = nil,
+//    trigger: some Equatable,
+//    completion: @escaping (Result<Bool, any Error>) -> Void
+//) -> some View
