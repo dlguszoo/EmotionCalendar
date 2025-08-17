@@ -12,7 +12,7 @@ import SwiftData
 struct EmotionCalendarApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            MoodLog.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +25,7 @@ struct EmotionCalendarApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            BaseSegmentedPickerView()
         }
         .modelContainer(sharedModelContainer)
     }
