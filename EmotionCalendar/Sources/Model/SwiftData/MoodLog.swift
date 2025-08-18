@@ -8,30 +8,24 @@
 import SwiftUI
 import SwiftData
 
-// 사용자가 남긴 감정 기록(메모 포함)을 로컬에 보존
-@Model final class MoodLog {
-    @Attribute(.unique) var id: UUID
-    var eventId: String
+@Model
+final class MoodLog {
+    @Attribute(.unique) var eventId: String
     var eventTitle: String
-    var eventStart: Date
-    var eventEnd: Date
-    var category: String
+    var date: Date             // 저장 시각(또는 이벤트 endDate)
+    var emoji: String          // UI용 이모지
+    var valence: Double        // -1...+1
+    var association: String    // "work"/"social"/"exercise"/"other"
+    var note: String?          // 메모
 
-    var emoji: String
-    var valence: Double
-    var note: String?
-    var createdAt: Date
-
-    init(event: EventModel, emoji: EmojiType, valence: Double, note: String?) {
-        self.id = UUID()
-        self.eventId = event.id
-        self.eventTitle = event.title
-        self.eventStart = event.startDate
-        self.eventEnd = event.endDate
-        self.category = event.category.associationLabel
-        self.emoji = emoji.emoji
+    init(eventId: String, eventTitle: String, date: Date, emoji: String, valence: Double, association: String, note: String?) {
+        self.eventId = eventId
+        self.eventTitle = eventTitle
+        self.date = date
+        self.emoji = emoji
         self.valence = valence
+        self.association = association
         self.note = note
-        self.createdAt = Date()
     }
 }
+

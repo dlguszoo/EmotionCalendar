@@ -11,7 +11,7 @@ struct BaseSegmentedPickerView: View {
     @State var selectedSection: MenuSection = .today
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             Picker("", selection: $selectedSection) {
                 ForEach(MenuSection.allCases, id: \.self) { option in
                     Text(option.rawValue)

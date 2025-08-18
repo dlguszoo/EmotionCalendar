@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct EmotionCalendarApp: App {
+    let service = HealthKitService()
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             MoodLog.self,
@@ -29,4 +31,31 @@ struct EmotionCalendarApp: App {
         }
         .modelContainer(sharedModelContainer)
     }
+    
+    init() {
+        setup()
+    }
+    
+    func setup() {
+        service.configure()
+    }
 }
+
+//import SwiftUI
+//
+//@main
+//struct EmotionCalendarApp: App {
+//    let service = HealthKitService()
+//    
+//    var body: some Scene {
+//        WindowGroup { TodayMinimal() }
+//    }
+//    
+//    init() {
+//        setup()
+//    }
+//    
+//    func setup() {
+//        service.configure()
+//    }
+//}
