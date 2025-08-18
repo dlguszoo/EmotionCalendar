@@ -162,7 +162,7 @@ struct TodayView: View {
                 kind: .momentaryEmotion,
                 valence: StateOfMindFactory.valence(for: emoji),
                 labels: [StateOfMindFactory.label(for: emoji)],
-                associations: [StateOfMindFactory.association(from: event.category.associationLabel)],
+                associations: [StateOfMindFactory.association(for: event.category)],
                 metadata: nil
             )
             if let mgr = somManager {

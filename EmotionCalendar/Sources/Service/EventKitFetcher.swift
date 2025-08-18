@@ -35,10 +35,33 @@ final class EventKitFetcher {
     }
 
     private func guessCategory(from event: EKEvent) -> EventCategory {
-        let name = (event.calendar.title).lowercased()
-        if name.contains("work") || name.contains("office") || name.contains("meeting") { return .work }
-        if name.contains("gym") || name.contains("run")     { return .workout }
-        if name.contains("family") || name.contains("friends") { return .social }
+        // 제목, 위치, 메모, 캘린더 이름을 모두 합쳐서 매칭
+        let haystack = [
+            event.title,
+            event.location,
+            event.notes,
+            event.calendar.title
+        ]
+            .compactMap { $0?.lowercased() }
+            .joined(separator: " ")
+        
+        // 운동 키워드
+        if haystack.contains("run") || haystack.contains("jog")
+            || haystack.contains("workout") || haystack.contains("gym") {
+            return .workout
+        }
+        
+        // 업무 키워드
+        if haystack.contains("work") || haystack.contains("office") || haystack.contains("meeting") {
+            return .work
+        }
+        
+        // 사회/가족 키워드
+        if haystack.contains("friend") || haystack.contains("friends")
+            || haystack.contains("family") || haystack.contains("social") {
+            return .social
+        }
+        
         return .other
     }
 }

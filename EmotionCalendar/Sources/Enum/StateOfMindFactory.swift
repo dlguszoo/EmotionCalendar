@@ -21,13 +21,12 @@ enum StateOfMindFactory {
     }
 
     // 2) Association 매핑
-    static func association(from eventAssociationName: String) -> HKStateOfMind.Association {
-        switch eventAssociationName.lowercased() {
-        case "work":     return .work
-        case "social":   return .community
-        case "exercise": return .fitness
-        default:
-            return .tasks
+    static func association(for category: EventCategory) -> HKStateOfMind.Association {
+        switch category {
+        case .work:    return .work
+        case .social:  return .community
+        case .workout: return .fitness
+        case .other:   return .selfCare
         }
     }
     

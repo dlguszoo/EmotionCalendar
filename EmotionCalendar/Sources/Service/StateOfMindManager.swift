@@ -43,7 +43,7 @@ final class StateOfMindManager {
 
         let valence = max(-1.0, min(1.0, StateOfMindFactory.valence(for: emoji)))
         let label  = StateOfMindFactory.label(for: emoji)
-        let assoc  = StateOfMindFactory.association(from: event.association) // String→Association 매핑
+        let assoc  = StateOfMindFactory.association(for: event.category) // String→Association 매핑
 
         // (선택) 나중에 매칭/디버깅을 위한 메타데이터
         var metadata: [String: Any] = [:]
