@@ -38,8 +38,26 @@ struct InsightsView: View {
     @State private var detailLog: MoodLog?
     
     // 하이라이트
-    private var mostMeaningfulLog: MoodLog? { weekLogs.max(by: { $0.valence < $1.valence }) }
-    private var mostBoringLog: MoodLog? { weekLogs.min(by: { $0.valence < $1.valence }) }
+    private var mostMeaningfulLog: MoodLog? {
+        weekLogs.max {
+            if $0.valence == $1.valence {
+                // 동점이면 최신순 (날짜가 큰 쪽이 먼저)
+                return $0.date < $1.date
+            }
+            return $0.valence < $1.valence
+        }
+    }
+
+    private var mostBoringLog: MoodLog? {
+        weekLogs.min {
+            if $0.valence == $1.valence {
+                // 동점이면 최신순 (날짜가 큰 쪽이 먼저)
+                return $0.date < $1.date
+            }
+            return $0.valence < $1.valence
+        }
+    }
+
     private func event(for log: MoodLog?) -> EventModel? {
         guard let id = log?.eventId else { return nil }
         return weekEvents.first(where: { $0.id == id })

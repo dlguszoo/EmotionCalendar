@@ -31,6 +31,7 @@ struct MoodLogDetailSheet: View, Identifiable {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 } else {
                     Text("No note").foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Spacer()
             }
