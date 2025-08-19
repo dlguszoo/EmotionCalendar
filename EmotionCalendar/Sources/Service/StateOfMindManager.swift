@@ -75,24 +75,29 @@ final class StateOfMindManager {
         return try await save(sample: sample)
     }
     
-    @MainActor
-    func dailyBalancePercent(for date: Date, store: HKHealthStore) async throws -> Int {
-        let t = HKSampleType.stateOfMindType()
-        guard store.authorizationStatus(for: t) != .notDetermined else { return 0 }
-
+    func dailyWorkShareByDuration(for date: Date,
+                                  events: [EventModel],
+                                  logs: [MoodLog]) -> Int {
         let cal = Calendar.current
-        let start = cal.startOfDay(for: date)
-        let end = cal.date(byAdding: .day, value: 1, to: start)!
-        let datePred = HKQuery.predicateForSamples(withStart: start, end: end)
+        let dayStart = cal.startOfDay(for: date)
+        let dayEnd   = cal.date(byAdding: .day, value: 1, to: dayStart)!
 
-        let pred = HKSamplePredicate.stateOfMind(datePred)
-        let desc = HKSampleQueryDescriptor(predicates: [pred], sortDescriptors: [])
-        let samples: [HKStateOfMind] = try await desc.result(for: store)
-        guard !samples.isEmpty else { return 0 }
+        // 오늘 로그가 붙은 이벤트만 (중복 로그 → 1회 처리)
+        let loggedIds = Set(logs.map { $0.eventId })
+        let loggedEvents = events.filter { loggedIds.contains($0.id) }
 
-        let adjusted = samples.map { $0.valence + 1.0 }       // 0..2
-        let avg = adjusted.reduce(0, +) / Double(samples.count)
-        return Int(max(0, min(1, avg/2.0)) * 100.0)           // 0..100
+        // 오늘 범위로 잘라낸 지속시간(초)
+        func clippedDuration(_ ev: EventModel) -> TimeInterval {
+            let start = max(ev.startDate, dayStart)
+            let end   = min(ev.endDate, dayEnd)
+            return max(0, end.timeIntervalSince(start))
+        }
+
+        let totalSec = loggedEvents.reduce(0.0) { $0 + clippedDuration($1) }
+        let workSec  = loggedEvents.reduce(0.0) { $0 + ($1.category == .work ? clippedDuration($1) : 0.0) }
+
+        guard totalSec > 0 else { return 0 }
+        let pct = (workSec / totalSec) * 100.0
+        return Int((min(100.0, max(0.0, pct))).rounded()) // 0~100, 반올림
     }
 }
-

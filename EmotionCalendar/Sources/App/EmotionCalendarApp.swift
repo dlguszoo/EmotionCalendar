@@ -27,7 +27,7 @@ struct EmotionCalendarApp: App {
 
     var body: some Scene {
         WindowGroup {
-            BaseSegmentedPickerView()
+            TodayView()
         }
         .modelContainer(sharedModelContainer)
     }

@@ -30,8 +30,15 @@ struct TodayView: View {
     ) private var todayLogs: [MoodLog]
 
     private let ek = EventKitFetcher()
-    @State private var hkStore = HKHealthStore()
-    @State private var somManager: StateOfMindManager? = nil
+    private let hkStore: HKHealthStore
+    private let somManager: StateOfMindManager
+    
+    init() {
+        let store = HKHealthStore()
+        self.hkStore = store
+        self.somManager = StateOfMindManager(store: store)
+    }
+
 
     @State private var events: [EventModel] = []
     @State private var selectedEvent: EventModel? = nil   // 로깅 시트용
@@ -48,7 +55,7 @@ struct TodayView: View {
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
+            VStack(spacing: 7) {
                 // 게이지: 0~100 → 0.0~1.0
                 BalanceGaugeView(progress: Double(dailyScore) / 100.0)
 
@@ -65,21 +72,25 @@ struct TodayView: View {
                     }
                 }
                 .listStyle(.plain)
+                .refreshable {
+                    do {
+                        try await ek.requestAccess()
+                        events = ek.fetchToday()
+                        // HealthKit: 오늘 점수 계산
+                        dailyScore = (somManager.dailyWorkShareByDuration(for: Date(), events: events, logs: todayLogs))
+                    } catch {
+                        errorMsg = error.localizedDescription
+                    }
+                }
             }
             .navigationTitle(MenuSection.today.rawValue)
-        }
-        .onAppear {
-            // 동일 HK 인스턴스로 매니저 1회 주입
-            if somManager == nil, #available(iOS 18.0, *) {
-                somManager = StateOfMindManager(store: hkStore)
-            }
         }
         .task {
             do {
                 try await ek.requestAccess()
                 events = ek.fetchToday()
                 // HealthKit: 오늘 점수 계산
-                dailyScore = (try? await somManager?.dailyBalancePercent(for: Date(), store: hkStore)) ?? 0
+                dailyScore = (somManager.dailyWorkShareByDuration(for: Date(), events: events, logs: todayLogs))
             } catch {
                 errorMsg = error.localizedDescription
             }
@@ -141,7 +152,7 @@ struct TodayView: View {
         do {
             try upsertLog(event: event, emoji: emoji, note: note)
             // 3) 게이지 갱신
-            dailyScore = (try? await somManager?.dailyBalancePercent(for: Date(), store: hkStore)) ?? dailyScore
+            dailyScore = (somManager.dailyWorkShareByDuration(for: Date(), events: events, logs: todayLogs))
         } catch {
             errorMsg = "Local save failed: \(error.localizedDescription)"
         }
@@ -165,11 +176,7 @@ struct TodayView: View {
                 associations: [StateOfMindFactory.association(for: event.category)],
                 metadata: nil
             )
-            if let mgr = somManager {
-                _ = try await mgr.save(sample: som)
-            } else {
-                try await hkStore.save(som)
-            }
+            try await somManager.save(sample: som)
         } catch {
             errorMsg = "HealthKit save failed: \(error.localizedDescription)"
         }

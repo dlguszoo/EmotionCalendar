@@ -19,7 +19,7 @@ struct EventRow: View {
                 HStack(spacing: 8) {
                     Text(event.title).font(.headline).foregroundStyle(.white)
                     if logged != nil {
-                        Label("Logged", systemImage: "checkmark.circle.fill")
+                        Image(systemName: "checkmark.circle.fill")
                             .font(.caption).foregroundStyle(.white.opacity(0.9))
                     }
                 }
