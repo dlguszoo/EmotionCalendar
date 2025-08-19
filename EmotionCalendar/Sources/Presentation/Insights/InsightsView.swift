@@ -10,14 +10,23 @@ import SwiftData
 import EventKit
 import HealthKit
 
+private let anchorDate: Date = {
+    Calendar.current.startOfDay(for: Date())
+}()
+
+private let week: DateInterval = {
+    Calendar.weekInterval(containing: anchorDate)
+}()
+
 struct InsightsView: View {
     @Environment(\.modelContext) private var context
     
-    // 어떤 주를 볼지 결정하는 기준 날짜 (오늘 = 이번 주)
-    @State private var anchorDate: Date = Date()
-    
-    // 선택된 주간 경계
-    private var week: DateInterval { Calendar.weekInterval(containing: anchorDate) }
+    @Query(
+        filter: #Predicate<MoodLog> {
+            $0.date >= week.start && $0.date < week.end
+        },
+        sort: \.date
+    ) private var weekLogs: [MoodLog]
     
     private let ek = EventKitFetcher()
     private let hkStore: HKHealthStore
@@ -31,7 +40,6 @@ struct InsightsView: View {
     
     // 데이터 소스
     @State private var weekEvents: [EventModel] = []
-    @State private var weekLogs: [MoodLog] = []
     
     // UI 상태
     @State private var weeklyScore: Int = 0
@@ -105,13 +113,6 @@ struct InsightsView: View {
             try await ek.requestAccess()
             // EventKit: 해당 주간 이벤트
             weekEvents = ek.fetchWeek(in: week)
-            
-            // SwiftData: 해당 주간 MoodLog
-            let fd = FetchDescriptor<MoodLog>(
-                predicate: #Predicate { $0.date >= week.start && $0.date < week.end },
-                sortBy: [SortDescriptor(\.date)]
-            )
-            weekLogs = (try? context.fetch(fd)) ?? []
             
             // 주간 work 시간 비율(로그 있으면 로그된 이벤트 기준, 없으면 전체 이벤트 기준)
             weeklyScore = somManager.weeklyWorkShareByDuration(in: week, events: weekEvents, logs: weekLogs)
