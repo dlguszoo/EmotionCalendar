@@ -9,17 +9,18 @@ import SwiftUI
 
 struct BalanceGaugeView: View {
     let progress: Double
+    let title: String
     
     var body: some View {
         VStack(spacing: -20) {
             GuageWithNumberView(progress: progress)
             
-            Text("Daily Work-Life Balance")
+            Text(title)
                 .font(.system(size: 15, weight: .semibold))
         }
     }
 }
 
 #Preview {
-    BalanceGaugeView(progress: 0.5)
+    BalanceGaugeView(progress: 0.5, title: "")
 }

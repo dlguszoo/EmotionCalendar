@@ -57,7 +57,7 @@ struct TodayView: View {
         NavigationView {
             VStack(spacing: 7) {
                 // 게이지: 0~100 → 0.0~1.0
-                BalanceGaugeView(progress: Double(dailyScore) / 100.0)
+                BalanceGaugeView(progress: Double(dailyScore) / 100.0, title: "Daily Work-Life Balance")
 
                 List {
                     ForEach(events) { ev in

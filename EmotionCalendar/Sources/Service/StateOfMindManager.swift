@@ -100,4 +100,26 @@ final class StateOfMindManager {
         let pct = (workSec / totalSec) * 100.0
         return Int((min(100.0, max(0.0, pct))).rounded()) // 0~100, 반올림
     }
+    
+    func weeklyWorkShareByDuration(in interval: DateInterval,
+                                   events: [EventModel],
+                                   logs: [MoodLog]) -> Int {
+        var base = events
+        if !logs.isEmpty {
+            let ids = Set(logs.map { $0.eventId })
+            let logged = events.filter { ids.contains($0.id) }
+            if !logged.isEmpty { base = logged }
+        }
+        
+        func clipped(_ ev: EventModel) -> TimeInterval {
+            let s = max(ev.startDate, interval.start)
+            let e = min(ev.endDate, interval.end)
+            return max(0, e.timeIntervalSince(s))
+        }
+        
+        let total = base.reduce(0.0) { $0 + clipped($1) }
+        let work  = base.reduce(0.0) { $0 + ($1.category == .work ? clipped($1) : 0.0) }
+        guard total > 0 else { return 0 }
+        return Int(((work / total) * 100.0).rounded())
+    }
 }

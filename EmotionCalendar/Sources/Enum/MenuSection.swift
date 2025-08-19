@@ -9,5 +9,5 @@ import Foundation
 
 enum MenuSection: String, CaseIterable {
     case today = "Today"
-    case insights = "Insights"
+    case weekly = "Weekly"
 }

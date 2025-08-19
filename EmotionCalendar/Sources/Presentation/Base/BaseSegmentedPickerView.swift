@@ -31,7 +31,7 @@ struct BaseSegmentedPickerView: View {
         switch section {
         case .today:
             TodayView() // Today 화면
-        case .insights:
+        case .weekly:
             InsightsView() // Insights 화면
         }
     }

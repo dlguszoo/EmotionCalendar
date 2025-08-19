@@ -33,6 +33,23 @@ final class EventKitFetcher {
             )
         }
     }
+    
+    func fetchWeek(in interval: DateInterval, calendars: [EKCalendar]? = nil) -> [EventModel] {
+        let predicate = store.predicateForEvents(withStart: interval.start,
+                                                 end: interval.end,
+                                                 calendars: calendars)
+        let events = store.events(matching: predicate).sorted { $0.startDate < $1.startDate }
+        return events.compactMap { ev in
+            guard let id = ev.eventIdentifier else { return nil }
+            return EventModel(
+                id: id,
+                title: ev.title ?? "(No Title)",
+                startDate: ev.startDate,
+                endDate: ev.endDate,
+                category: guessCategory(from: ev)   // 기존 추정 로직 재사용
+            )
+        }
+    }
 
     private func guessCategory(from event: EKEvent) -> EventCategory {
         // 제목, 위치, 메모, 캘린더 이름을 모두 합쳐서 매칭
