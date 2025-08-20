@@ -12,9 +12,9 @@ import Observation
 
 @Observable
 class InsightsViewModel {
-    @Published var weekEvents: [EventModel] = []
-    @Published var weeklyScore: Int = 0
-    @Published var detailLog: MoodLog?
+    var weekEvents: [EventModel] = []
+    var weeklyScore: Int = 0
+    var detailLog: MoodLog?
     
     private(set) var weekLogs: [MoodLog] = []
     private let ek = EventKitFetcher()
