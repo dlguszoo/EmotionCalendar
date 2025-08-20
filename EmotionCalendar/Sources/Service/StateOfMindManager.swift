@@ -9,12 +9,6 @@ import HealthKit
 import SwiftUI
 
 @available(iOS 18.0, *)
-enum StateOfMindError: Error {
-    case healthDataUnavailable
-    case notAuthorized
-}
-
-@available(iOS 18.0, *)
 final class StateOfMindManager {
     // 같은 인스턴스를 주입받아 전체 앱에서 통일해서 쓰기
     private let store: HKHealthStore
