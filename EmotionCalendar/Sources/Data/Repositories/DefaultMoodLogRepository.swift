@@ -6,10 +6,19 @@
 //
 
 import SwiftData
+import Foundation
 
 class DefaultMoodLogRepository: MoodLogRepository {
     private let context: ModelContext
     init(context: ModelContext) { self.context = context }
+    
+    func fetchLogs(in interval: DateInterval) throws -> [MoodLog] {
+        let desc = FetchDescriptor<MoodLog>(
+            predicate: #Predicate { $0.date >= interval.start && $0.date < interval.end },
+            sortBy: [SortDescriptor(\MoodLog.date, order: .forward)]
+        )
+        return try context.fetch(desc)
+    }
 
     func upsert(event: EventModel, emoji: EmojiType, note: String?) throws {
         // today 범위 필터는 View에서 이미 하고 있으므로, 단순 upsert

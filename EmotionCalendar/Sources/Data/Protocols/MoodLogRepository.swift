@@ -8,5 +8,6 @@
 import Foundation
 
 protocol MoodLogRepository {
+    func fetchLogs(in interval: DateInterval) throws -> [MoodLog]
     func upsert(event: EventModel, emoji: EmojiType, note: String?) throws
 }

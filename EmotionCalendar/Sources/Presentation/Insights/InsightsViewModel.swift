@@ -5,35 +5,35 @@
 //  Created by 이현주 on 8/20/25.
 //
 
-import Foundation
 import SwiftUI
-import HealthKit
 import Observation
 
 @Observable
 class InsightsViewModel {
     var weekEvents: [EventModel] = []
+    var weekLogs: [MoodLog] = []
     var weeklyScore: Int = 0
     var detailLog: MoodLog?
     
-    private(set) var weekLogs: [MoodLog] = []
-    private let ek = EventKitFetcher()
-    private let somManager: StateOfMindManager
+    private let fetchWeekEvents: FetchWeekEventsUseCase
+    private let fetchLogsForInterval: FetchLogsForIntervalUseCase
+    private let computeWeeklyScore: ComputeWeeklyScoreUseCase
     
-    init() {
-        let store = HKHealthStore()
-        self.somManager = StateOfMindManager(store: store)
-    }
-    
-    func updateLogs(_ logs: [MoodLog]) {
-        self.weekLogs = logs
+    init(fetchWeekEvents: FetchWeekEventsUseCase,
+         fetchLogsForInterval: FetchLogsForIntervalUseCase,
+         computeWeeklyScore: ComputeWeeklyScoreUseCase) {
+        self.fetchWeekEvents = fetchWeekEvents
+        self.fetchLogsForInterval = fetchLogsForInterval
+        self.computeWeeklyScore = computeWeeklyScore
     }
     
     func loadWeek(interval: DateInterval) async {
         do {
-            try await ek.requestAccess()
-            weekEvents = ek.fetchWeek(in: interval)
-            weeklyScore = somManager.weeklyWorkShareByDuration(in: interval, events: weekEvents, logs: weekLogs)
+            async let evs = fetchWeekEvents.execute(interval: interval)
+            let logs = try fetchLogsForInterval.execute(interval: interval)
+            self.weekLogs = logs
+            self.weekEvents = try await evs
+            self.weeklyScore = computeWeeklyScore.execute(interval: interval, events: weekEvents, logs: weekLogs)
         } catch {
             print("Insights reload failed: \(error)")
         }
